@@ -2,7 +2,7 @@ server:
   port: 8081
 spring:
   application:
-    name: product-microservice
+    name: user-microservice
 
   datasource:
     url: jdbc:postgresql://localhost:5432/fast_market
