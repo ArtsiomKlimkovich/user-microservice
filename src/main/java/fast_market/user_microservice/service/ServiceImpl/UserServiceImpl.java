@@ -10,6 +10,7 @@ import fast_market.user_microservice.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.Optional;
@@ -23,10 +24,9 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     @Override
+    @Transactional
     public UserDto createUser(UserDto userDto) {
-        var existingUser = userRepository.findUserByEmail(userDto.getEmail()).orElse(null);
-
-        if(existingUser != null){
+        if(userRepository.findUserByEmail(userDto.getEmail()).isPresent()){
             throw new UserAlreadyExistsException("User with the given email already exists.");
         }
         User savedUser = userMapper.dtoToUser(userDto);
@@ -37,18 +37,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(Long userId) {
-        Optional<User> optionalUser = Optional.ofNullable(userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User with the given ID does not exist.")));
-
-        User user = optionalUser.get();
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User with the given ID does not exist."));
 
         return userMapper.userToDto(user);
     }
 
     @Override
     public UserDto updateUser(UserDto userDto, Long userid) {
-        Optional<User> optionalUser = userRepository.findById(userid).orElseThrow(() -> new UserNotFoundException("User with the given ID does not exist."));
-
-        User existingUser = optionalUser.get();
+        User existingUser = userRepository.findById(userid).orElseThrow(() -> new UserNotFoundException("User with the given ID does not exist."));
 
         BeanUtils.copyProperties(userDto, existingUser, "userId");
 
