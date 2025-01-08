@@ -30,6 +30,7 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistsException("User with the given email already exists.");
         }
         User savedUser = userMapper.dtoToUser(userDto);
+        userRepository.save(savedUser);
 
         return userMapper.userToDto(savedUser);
     }
@@ -37,9 +38,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(Long userId) {
         Optional<User> optionalUser = Optional.ofNullable(userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User with the given ID does not exist.")));
-        if (optionalUser.isEmpty()) {
-            throw new RuntimeException("User with the given ID does not exist.");
-        }
+
         User user = optionalUser.get();
 
         return userMapper.userToDto(user);
@@ -47,11 +46,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(UserDto userDto, Long userid) {
-        Optional<User> optionalUser = userRepository.findById(userid);
-
-        if (optionalUser.isEmpty()) {
-            throw new RuntimeException("User with the given id does not exist.");
-        }
+        Optional<User> optionalUser = userRepository.findById(userid).orElseThrow(() -> new UserNotFoundException("User with the given ID does not exist."));
 
         User existingUser = optionalUser.get();
 
