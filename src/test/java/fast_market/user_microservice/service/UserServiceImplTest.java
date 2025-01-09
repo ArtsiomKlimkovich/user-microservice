@@ -36,7 +36,7 @@ public class UserServiceImplTest {
 
     @BeforeEach
     public void setUp(){
-        userDto = new UserDto(1L, "John Joe", "john@gmail.com", "password123");
+        userDto = new UserDto("John Joe", "john@gmail.com", "password123");
         user = new User(1L, "John Joe", "john@gmail.com", "password123");
     }
 
@@ -61,7 +61,7 @@ public class UserServiceImplTest {
         UserDto foundUser = userServiceImpl.getUserById(1L);
 
         assertThat(foundUser).isNotNull();
-        assertThat(foundUser.getUserId()).isEqualTo(1L);
+        assertThat(foundUser.getEmail()).isEqualTo("john@gmail.com");
     }
 
     @Test
