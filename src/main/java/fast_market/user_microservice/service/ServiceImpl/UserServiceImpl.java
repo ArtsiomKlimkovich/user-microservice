@@ -23,11 +23,14 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
 
+    String userAlreadyExistsExMessage = "User with the given email already exists.";
+    String userNotFoundExMessage = "User with the given ID does not exist.";
+
     @Override
     @Transactional
     public UserDto createUser(UserDto userDto) {
         if(userRepository.findUserByEmail(userDto.getEmail()).isPresent()){
-            throw new UserAlreadyExistsException("User with the given email already exists.");
+            throw new UserAlreadyExistsException(userAlreadyExistsExMessage);
         }
         User savedUser = userMapper.dtoToUser(userDto);
         userRepository.save(savedUser);
@@ -37,14 +40,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User with the given ID does not exist."));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userNotFoundExMessage));
 
         return userMapper.userToDto(user);
     }
 
     @Override
     public UserDto updateUser(UserDto userDto, Long userid) {
-        User existingUser = userRepository.findById(userid).orElseThrow(() -> new UserNotFoundException("User with the given ID does not exist."));
+        User existingUser = userRepository.findById(userid).orElseThrow(() -> new UserNotFoundException(userNotFoundExMessage));
 
         BeanUtils.copyProperties(userDto, existingUser, "userId");
 
@@ -56,7 +59,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long userId) {
         if(!userRepository.existsById(userId)){
-            throw new UserNotFoundException("User with the given id does not exist.");
+            throw new UserNotFoundException(userNotFoundExMessage);
         }
         else{
             userRepository.deleteById(userId);
